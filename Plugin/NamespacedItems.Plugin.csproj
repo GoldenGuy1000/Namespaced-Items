@@ -7,8 +7,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ItemAPI.Plugin</RootNamespace>
-    <AssemblyName>ItemAPI.Plugin</AssemblyName>
+    <RootNamespace>NamespacedItems.Plugin</RootNamespace>
+    <AssemblyName>NamespacedItems.Plugin</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <LangVersion>preview</LangVersion>
     <FileAlignment>512</FileAlignment>
@@ -33,7 +33,7 @@
       <HintPath>$(GameDir)\Muck_Data\Managed\publicized_assemblies\Assembly-CSharp-firstpass_publicized.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <!-- compile NegotiateIDsPatcher and dump assemblies, then publicize to reference here -->
+    <!-- compile NamespacedItems.Preloader and dump assemblies, then publicize to reference here -->
     <Reference Include="Assembly-CSharp_publicized">
       <HintPath>$(GameDir)\BepInEx\DumpedAssemblies\publicized_assemblies\Assembly-CSharp_publicized.dll</HintPath>
       <Private>False</Private>
@@ -310,8 +310,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="IExtraData.cs" />
-    <Compile Include="InventoryItemWithGUID.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Patches.cs" />
     <None Include="GameDir.targets" />

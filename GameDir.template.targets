@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <GameDir>Put the path to your Muck install directory here, and rename this file to "GameDir.targets"</GameDir>
+  </PropertyGroup>
+</Project>

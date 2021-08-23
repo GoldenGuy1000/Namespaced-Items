@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NamespacedItems.Preloader", "Preloader\NamespacedItems.Preloader.csproj", "{FAC47697-7797-4A4A-B168-B045D758C508}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NamespacedItems.Plugin", "Plugin\NamespacedItems.Plugin.csproj", "{0D29BF6B-EAC3-41C9-80A2-8E90FFBB9EDE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FAC47697-7797-4A4A-B168-B045D758C508}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{FAC47697-7797-4A4A-B168-B045D758C508}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{FAC47697-7797-4A4A-B168-B045D758C508}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAC47697-7797-4A4A-B168-B045D758C508}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D29BF6B-EAC3-41C9-80A2-8E90FFBB9EDE}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{0D29BF6B-EAC3-41C9-80A2-8E90FFBB9EDE}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{0D29BF6B-EAC3-41C9-80A2-8E90FFBB9EDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D29BF6B-EAC3-41C9-80A2-8E90FFBB9EDE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4C6615AE-06AE-4130-8875-234F4FD07150}
+	EndGlobalSection
+EndGlobal
