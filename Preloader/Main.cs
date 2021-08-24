@@ -47,6 +47,7 @@ namespace NamespacedItems.Preloader
         static TypeReference Vector3;
         static TypeReference Material;
         static TypeReference Mesh;
+        static TypeReference Sprite;
 
         static TypeDefinition Weakness;
         static TypeDefinition InventoryItem;
@@ -188,6 +189,7 @@ namespace NamespacedItems.Preloader
             Vector3 = assembly.MainModule.GetUnityType(nameof(Vector3));
             Material = assembly.MainModule.GetUnityType(nameof(Material));
             Mesh = assembly.MainModule.GetUnityType(nameof(Mesh));
+            Sprite = assembly.MainModule.GetUnityType(nameof(Sprite));
 
             Weakness = assembly.MainModule.GetTypeDefinition("MobType").NestedTypes.Single(type => type.Name == nameof(Weakness));
             InventoryItem = assembly.MainModule.GetTypeDefinition(nameof(InventoryItem));
@@ -238,6 +240,13 @@ namespace NamespacedItems.Preloader
             INamespacedItem.AddGetSetProperty("Amount", assembly.MainModule.TypeSystem.Int32);
             INamespacedItem.AddGetProperty("MaxAmount", assembly.MainModule.TypeSystem.Int32);
             INamespacedItem.AddGetProperty("Stackable", assembly.MainModule.TypeSystem.Boolean);
+
+            INamespacedItem.AddGetProperty("Sprite", Sprite);
+            INamespacedItem.AddGetProperty("DroppedMesh", Mesh);
+            INamespacedItem.AddGetProperty("DroppedMaterial", Material);
+            INamespacedItem.AddGetProperty("HeldRotationOffset", Vector3);
+            INamespacedItem.AddGetProperty("HeldPositionOffset", Vector3);
+            INamespacedItem.AddGetProperty("HeldScale", assembly.MainModule.TypeSystem.Single);
 
             IFoodItem.AddGetProperty("HealthRegen", assembly.MainModule.TypeSystem.Single);
             IFoodItem.AddGetProperty("HungerRegen", assembly.MainModule.TypeSystem.Single);

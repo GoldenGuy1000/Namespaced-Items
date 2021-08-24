@@ -6,6 +6,7 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Security;
 using System.Security.Permissions;
+using System.Security.Policy;
 using System.Text.RegularExpressions;
 using HarmonyLib;
 using UnityEngine;
@@ -42,29 +43,8 @@ namespace NamespacedItems.Plugin
             if (module is null)
             {
                 var asmname = new AssemblyName("NamespacedGeneratedItems");
-                var myasm = Assembly.GetExecutingAssembly();
-                Debug.Log(myasm.FullName);
-                foreach (var attr in myasm.CustomAttributes)
-                {
-                    Debug.Log(attr.ToString());
-                }
-                Debug.Log(myasm.Evidence);
-                // var perms = myasm.PermissionSet.Copy();
-                // var perms = new PermissionSet(PermissionState.None);
-                // perms.AddPermission(new SecurityPermission(SecurityPermissionFlag.SkipVerification));
-                asm = AppDomain.CurrentDomain.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.RunAndSave, null, SecurityContextSource.CurrentAssembly);
+                asm = AppDomain.CurrentDomain.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.RunAndSave);
                 module = asm.DefineDynamicModule(asmname.Name, asmname.Name + ".dll");
-                // asm.SetCustomAttribute(new CustomAttributeBuilder(
-                //     AccessTools.Constructor(
-                //         typeof(SecurityPermissionAttribute),
-                //         new[] { typeof(SecurityAction) }
-                //     ),
-                //     new object[] { SecurityAction.RequestMinimum },
-                //     new PropertyInfo[] { AccessTools.Property(typeof(SecurityPermissionAttribute), nameof(SecurityPermissionAttribute.SkipVerification)) },
-                //     new object[] { true }
-                // ));
-
-                module.SetCustomAttribute(AccessTools.Constructor(typeof(UnverifiableCodeAttribute), Type.EmptyTypes), new byte[] { 1, 0, 0, 0 });
             }
 
             var original = AccessTools.Field(typeof(BaseNamespacedGeneratedItem), nameof(BaseNamespacedGeneratedItem.original));
@@ -335,7 +315,7 @@ namespace NamespacedItems.Plugin
     }
 }
 
-abstract class BaseNamespacedGeneratedItem : INamespacedItem
+public abstract class BaseNamespacedGeneratedItem : INamespacedItem
 {
     protected internal readonly InventoryItem original;
 
@@ -347,8 +327,14 @@ abstract class BaseNamespacedGeneratedItem : INamespacedItem
     public int MaxAmount => original.max;
     public bool Stackable => original.stackable;
     public bool CanDespawn => !original.important;
+    public Sprite Sprite => original.sprite;
+    public Mesh DroppedMesh => original.mesh;
+    public Material DroppedMaterial => original.material;
+    public Vector3 HeldRotationOffset => original.rotationOffset;
+    public Vector3 HeldPositionOffset => original.positionOffset;
+    public float HeldScale => original.scale;
 
-    public BaseNamespacedGeneratedItem(InventoryItem item, string nspace, string name)
+    protected BaseNamespacedGeneratedItem(InventoryItem item, string nspace, string name)
     {
         original = item;
         Namespace = nspace;
