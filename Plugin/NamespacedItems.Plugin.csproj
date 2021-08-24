@@ -311,7 +311,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Main.cs" />
-    <Compile Include="Patches.cs" />
+    <Compile Include="GenerateVanillaClasses.cs" />
     <None Include="GameDir.targets" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -4,14 +4,14 @@ using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 
-namespace NegotiateIDs
+namespace NamespacedItems.Plugin
 {
     [BepInPlugin(Guid, Name, Version)]
     public class Main : BaseUnityPlugin
     {
         public const string
-            Name = "NegotiateIDs",
-            Author = "Terrain",
+            Name = "NamespacedItems",
+            Author = "KcumSquad",
             Guid = $"{Author}.{Name}",
             Version = "1.0.0.0";
 

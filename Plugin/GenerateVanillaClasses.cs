@@ -1,19 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
-using System.Security;
-using System.Security.Permissions;
-using System.Security.Policy;
-using System.Text.RegularExpressions;
 using HarmonyLib;
 using UnityEngine;
 
 #pragma warning disable CS0618 // InventoryItem is obsolete
 
-namespace NamespacedItems.Plugin
+namespace NamespacedItems.Plugin.GenerateVanillaClasses
 {
     [HarmonyPatch]
     static class Patches
@@ -31,8 +26,8 @@ namespace NamespacedItems.Plugin
                 )
                 .InstructionEnumeration();
 
-        static Dictionary<(string nspace, string name), INamespacedItem> CachedItems = new();
-        static Dictionary<ArmorComponent, IArmorSet> CachedArmors = new();
+        static readonly Dictionary<(string nspace, string name), INamespacedItem> CachedItems = new();
+        static readonly Dictionary<ArmorComponent, IArmorSet> CachedArmors = new();
 
         static AssemblyBuilder asm;
         static ModuleBuilder module;
@@ -82,6 +77,8 @@ namespace NamespacedItems.Plugin
                 type.AddAutoProperty(nameof(IFuelItem.CurrentUses), typeof(int));
                 type.AddGetProperty(nameof(IFuelItem.SpeedMultiplier), typeof(int)).OriginalField(nameof(InventoryItem.fuel), nameof(InventoryItem.fuel.speedMultiplier));
             }
+
+            FieldInfo armorSetField = null;
             if (isArmor)
             {
                 type.AddInterfaceImplementation(typeof(IArmorItem));
@@ -116,12 +113,10 @@ namespace NamespacedItems.Plugin
                             throw new InvalidOperationException($"No set name found. Please add the key '{item.armorComponent.name}' to GeneratedArmorSet.sets.");
                         }
                     }
+                    armorSetField = type.DefineField("armorSet", typeof(IArmorSet), FieldAttributes.Private);
                     var il = type.AddGetProperty(nameof(IArmorItem.Set), typeof(IArmorSet)).GetILGenerator();
-                    il.Emit(OpCodes.Ldfld, AccessTools.Field(typeof(Patches), nameof(CachedArmors)));
                     il.Emit(OpCodes.Ldarg_0);
-                    il.Emit(OpCodes.Ldfld, original);
-                    il.Emit(OpCodes.Ldfld, AccessTools.Field(typeof(InventoryItem), nameof(InventoryItem.armorComponent)));
-                    il.EmitCall(OpCodes.Call, AccessTools.PropertyGetter(typeof(Dictionary<,>), "Item"), null);
+                    il.Emit(OpCodes.Ldfld, armorSetField);
                     il.Emit(OpCodes.Ret);
                 }
             }
@@ -215,12 +210,23 @@ namespace NamespacedItems.Plugin
                 il.Emit(OpCodes.Ldarg_0);
                 il.EmitCall(OpCodes.Call, AccessTools.PropertyGetter(typeof(BaseNamespacedGeneratedItem), nameof(BaseNamespacedGeneratedItem.Name)), null);
                 il.Emit(OpCodes.Newobj, ctor);
+                if (armorSetField is not null)
+                {
+                    il.Emit(OpCodes.Dup);
+                    il.Emit(OpCodes.Ldarg_0);
+                    il.Emit(OpCodes.Ldfld, armorSetField);
+                    il.Emit(OpCodes.Stfld, armorSetField);
+                }
                 il.Emit(OpCodes.Ret);
             }
 
             var resultType = type.CreateType();
             var resultCtor = AccessTools.Constructor(resultType, new[] { typeof(InventoryItem), typeof(string), typeof(string) });
             var result = (INamespacedItem)resultCtor.Invoke(new object[] { item, nspace, name });
+            if (armorSetField != null)
+            {
+                armorSetField.SetValue(result, CachedArmors[item.armorComponent]);
+            }
             CachedItems[(nspace, name)] = result;
             return result;
         }
@@ -313,57 +319,57 @@ namespace NamespacedItems.Plugin
             asm.Save(asm.GetName().Name + ".dll");
         }
     }
-}
 
-public abstract class BaseNamespacedGeneratedItem : INamespacedItem
-{
-    protected internal readonly InventoryItem original;
-
-    public string Namespace { get; }
-    public string Name { get; }
-    public string DisplayName => original.name;
-    public string Description => original.description;
-    public int Amount { get; set; }
-    public int MaxAmount => original.max;
-    public bool Stackable => original.stackable;
-    public bool CanDespawn => !original.important;
-    public Sprite Sprite => original.sprite;
-    public Mesh DroppedMesh => original.mesh;
-    public Material DroppedMaterial => original.material;
-    public Vector3 HeldRotationOffset => original.rotationOffset;
-    public Vector3 HeldPositionOffset => original.positionOffset;
-    public float HeldScale => original.scale;
-
-    protected BaseNamespacedGeneratedItem(InventoryItem item, string nspace, string name)
+    public abstract class BaseNamespacedGeneratedItem : INamespacedItem
     {
-        original = item;
-        Namespace = nspace;
-        Name = name;
+        protected internal readonly InventoryItem original;
+
+        public string Namespace { get; }
+        public string Name { get; }
+        public string DisplayName => original.name;
+        public string Description => original.description;
+        public int Amount { get; set; }
+        public int MaxAmount => original.max;
+        public bool Stackable => original.stackable;
+        public bool CanDespawn => !original.important;
+        public Sprite Sprite => original.sprite;
+        public Mesh DroppedMesh => original.mesh;
+        public Material DroppedMaterial => original.material;
+        public Vector3 HeldRotationOffset => original.rotationOffset;
+        public Vector3 HeldPositionOffset => original.positionOffset;
+        public float HeldScale => original.scale;
+
+        protected BaseNamespacedGeneratedItem(InventoryItem item, string nspace, string name)
+        {
+            original = item;
+            Namespace = nspace;
+            Name = name;
+        }
+
+        public abstract INamespacedItem Copy();
     }
 
-    public abstract INamespacedItem Copy();
-}
-
-public class GeneratedArmorSet : IArmorSet
-{
-    public static Dictionary<string, string> sets = new()
+    public class GeneratedArmorSet : IArmorSet
     {
-        ["ChunkiumArmor"] = "chunkium_armor",
-        ["WolfArmor"] = "wolf_armor",
-    };
+        public static Dictionary<string, string> sets = new()
+        {
+            ["ChunkiumArmor"] = "chunkium_armor",
+            ["WolfArmor"] = "wolf_armor",
+        };
 
-    public string Namespace => "muck";
-    public string Name { get; }
-    public string Bonus { get; }
+        public string Namespace => "muck";
+        public string Name { get; }
+        public string Bonus { get; }
 
-    public IArmorItem Helmet { get; internal set; }
-    public IArmorItem Torso { get; internal set; }
-    public IArmorItem Legs { get; internal set; }
-    public IArmorItem Feet { get; internal set; }
+        public IArmorItem Helmet { get; internal set; }
+        public IArmorItem Torso { get; internal set; }
+        public IArmorItem Legs { get; internal set; }
+        public IArmorItem Feet { get; internal set; }
 
-    internal GeneratedArmorSet(string name, string bonus)
-    {
-        Name = name;
-        Bonus = bonus;
+        internal GeneratedArmorSet(string name, string bonus)
+        {
+            Name = name;
+            Bonus = bonus;
+        }
     }
 }
