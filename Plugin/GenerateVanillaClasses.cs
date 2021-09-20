@@ -8,31 +8,17 @@ using UnityEngine;
 
 #pragma warning disable CS0618 // InventoryItem is obsolete
 
-namespace NamespacedItems.Plugin.GenerateVanillaClasses
+namespace NamespacedItems.Plugin
 {
-    [HarmonyPatch]
-    static class Patches
+    static partial class Implementations
     {
-        [HarmonyPatch(typeof(InventoryItem), nameof(InventoryItem.ToNamespacedItem)), HarmonyTranspiler]
-        static IEnumerable<CodeInstruction> ToNamespacedItem(IEnumerable<CodeInstruction> instructions) =>
-            new CodeMatcher(instructions)
-                .Start()
-                .Insert(
-                    new(OpCodes.Ldarg_0),
-                    new(OpCodes.Ldarg_1),
-                    new(OpCodes.Ldarg_2),
-                    Transpilers.EmitDelegate<Func<InventoryItem, string, string, INamespacedItem>>(ToNamespacedItem),
-                    new(OpCodes.Ret)
-                )
-                .InstructionEnumeration();
-
         static readonly Dictionary<(string nspace, string name), INamespacedItem> CachedItems = new();
         static readonly Dictionary<ArmorComponent, IArmorSet> CachedArmors = new();
 
         static AssemblyBuilder asm;
         static ModuleBuilder module;
 
-        static INamespacedItem ToNamespacedItem(InventoryItem item, string nspace, string name)
+        public static INamespacedItem ToNamespacedItem(InventoryItem item, string nspace, string name)
         {
             if (CachedItems.TryGetValue((nspace, name), out var cached)) return cached;
             if (module is null)
@@ -301,23 +287,6 @@ namespace NamespacedItems.Plugin.GenerateVanillaClasses
             }
             il.Emit(OpCodes.Ret);
         }
-
-        [HarmonyPatch(typeof(ItemManager), nameof(ItemManager.InitAllItems)), HarmonyPostfix]
-        static void InitAllItems(ItemManager __instance)
-        {
-            foreach (var item in __instance.allScriptableItems)
-            {
-                try
-                {
-                    item.ToNamespacedItem("muck", item.id.ToString());
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
-            asm.Save(asm.GetName().Name + ".dll");
-        }
     }
 
     public abstract class BaseNamespacedGeneratedItem : INamespacedItem
@@ -347,6 +316,162 @@ namespace NamespacedItems.Plugin.GenerateVanillaClasses
         }
 
         public abstract INamespacedItem Copy();
+
+        public static readonly Dictionary<int, string> names = new()
+        {
+            [0] = "bark",
+            [1] = "chest",
+            [2] = "coal",
+            [3] = "coin",
+            [4] = "flint",
+            [5] = "adamantite_boots",
+            [6] = "chunkium_boots",
+            [7] = "gold_boots",
+            [8] = "mithril_boots",
+            [9] = "obamium_boots",
+            [10] = "steel_boots",
+            [11] = "wolfskin_boots",
+            [12] = "adamantite_helmet",
+            [13] = "chunkium_helmet",
+            [14] = "gold_helmet",
+            [15] = "mithril_helmet",
+            [16] = "obamium_helmet",
+            [17] = "steel_helmet",
+            [18] = "wolfskin_helmet",
+            [19] = "adamantite_pants",
+            [20] = "chunkium_pants",
+            [21] = "gold_pants",
+            [22] = "mithril_pants",
+            [23] = "obamium_pants",
+            [24] = "steel_pants",
+            [25] = "wolfskin_pants",
+            [26] = "adamantite_chestplate",
+            [27] = "chunkium_chestplate",
+            [28] = "gold_chestplate",
+            [29] = "mithril_chestplate",
+            [30] = "obamium_chestplate",
+            [31] = "steel_chestplate",
+            [32] = "wolfskin_chestplate",
+            [33] = "wood_window",
+            [34] = "wood_doorway",
+            [35] = "wood_floor",
+            [36] = "wood_pole",
+            [37] = "wood_pole_half",
+            [38] = "wood_roof",
+            [39] = "wood_stairs",
+            [40] = "wood_stairs_thinn",
+            [41] = "wood_wall",
+            [42] = "wood_wall_half",
+            [43] = "wood_wall_tilted",
+            [44] = "torch",
+            [45] = "red_apple",
+            [46] = "bowl",
+            [47] = "dough",
+            [48] = "flax_fibers",
+            [49] = "flax",
+            [50] = "raw_meat",
+            [51] = "gulpon_shroom",
+            [52] = "ligon_shroom",
+            [53] = "slurbon_shroom",
+            [54] = "sugon_shroom",
+            [55] = "wheat",
+            [56] = "bread",
+            [57] = "cooked_meat",
+            [58] = "apple_pie",
+            [59] = "meat_pie",
+            [60] = "meat_soup",
+            [61] = "purple_soup",
+            [62] = "red_soup",
+            [63] = "weird_soup",
+            [64] = "yellow_soup",
+            [65] = "ancientcore",
+            [66] = "adamantite_bar",
+            [67] = "chunkium_bar",
+            [68] = "gold_bar",
+            [69] = "iron_bar",
+            [70] = "mithril_bar",
+            [71] = "obamium_bar",
+            [72] = "ancient_bone",
+            [73] = "dragonball",
+            [74] = "fireball",
+            [75] = "lightningball",
+            [76] = "rock_projectile",
+            [77] = "rock_projectile_roll",
+            [78] = "spear_projectile",
+            [79] = "spike_attack",
+            [80] = "sword_projectile",
+            [81] = "waterball",
+            [82] = "windball",
+            [83] = "adamantite_ore",
+            [84] = "chunkium_ore",
+            [85] = "gold_ore",
+            [86] = "iron_ore",
+            [87] = "mithril_ore",
+            [88] = "obamium_ore",
+            [89] = "ruby",
+            [90] = "rock",
+            [91] = "birch_wood",
+            [92] = "dark_oak_wood",
+            [93] = "fir_wood",
+            [94] = "wood",
+            [95] = "oak_wood",
+            [96] = "anvil",
+            [97] = "cauldron",
+            [98] = "fletching_table",
+            [99] = "furnace",
+            [100] = "workbench",
+            [101] = "boat_map",
+            [102] = "gem_map",
+            [103] = "blue_gem",
+            [104] = "green_gem",
+            [105] = "pink_gem",
+            [106] = "red_gem",
+            [107] = "yellow_gem",
+            [108] = "adamantite_axe",
+            [109] = "gold_axe",
+            [110] = "mithril_axe",
+            [111] = "steel_axe",
+            [112] = "wood_axe",
+            [113] = "oak_bow",
+            [114] = "wood_bow",
+            [115] = "birch_bow",
+            [116] = "fir_bow",
+            [117] = "ancient_bow",
+            [118] = "adamantite_pickaxe",
+            [119] = "gold_pickaxe",
+            [120] = "mithril_pickaxe",
+            [121] = "steel_pickaxe",
+            [122] = "wood_pickaxe",
+            [123] = "rope",
+            [124] = "shovel",
+            [125] = "adamantite_sword",
+            [126] = "gold_sword",
+            [127] = "mithril_sword",
+            [128] = "obamium_sword",
+            [129] = "steel_sword",
+            [130] = "milk",
+            [131] = "adamantite_arrow",
+            [132] = "fire_arrow",
+            [133] = "flint_arrow",
+            [134] = "lightning_arrow",
+            [135] = "mithril_arrow",
+            [136] = "steel_arrow",
+            [137] = "water_arrow",
+            [138] = "chiefs_spear",
+            [139] = "chunky_hammer",
+            [140] = "gronks_sword",
+            [141] = "gronks_sword_projectile",
+            [142] = "night_blade",
+            [143] = "wyvern_dagger",
+            [144] = "black_shard",
+            [145] = "blade",
+            [146] = "hammer_shaft",
+            [147] = "spear_tip",
+            [148] = "sword_hilt",
+            [149] = "wolf_claws",
+            [150] = "wolfskin",
+            [151] = "wyvern_claws",
+        };
     }
 
     public class GeneratedArmorSet : IArmorSet
